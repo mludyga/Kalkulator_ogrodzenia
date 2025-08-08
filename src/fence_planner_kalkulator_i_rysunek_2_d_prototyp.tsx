@@ -589,7 +589,10 @@ export default function FencePlanner() {
 
                 <div>
                   <Label>System podmurówki</Label>
-                  <Select value={s.system} onValueChange={(val) => setSection(i, { system: val as PlinthSystem })}>
+                  <Select
+                  value={s.system}
+                  onValueChange={(val: PlinthSystem) => setSection(i, { system: val })}
+                  >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="beton">Łącznik betonowy (płyta 2450)</SelectItem>
@@ -620,7 +623,10 @@ export default function FencePlanner() {
 
             <div>
               <Label>Bok</Label>
-              <Select value={gate.section} onValueChange={(val) => setGate({ ...gate, section: val as SectionName })}>
+              <Select
+              value={gate.section}
+              onValueChange={(val: SectionName) => setGate({ ...gate, section: val })}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="front">Front</SelectItem>
@@ -647,7 +653,10 @@ export default function FencePlanner() {
 
             <div>
               <Label>Bok</Label>
-              <Select value={wicket.section} onValueChange={(val) => setWicket({ ...wicket, section: val as SectionName })}>
+              <Select
+              value={wicket.section}
+              onValueChange={(val: SectionName) => setWicket({ ...wicket, section: val })}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="front">Front</SelectItem>
