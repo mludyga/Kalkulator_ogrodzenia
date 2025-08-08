@@ -431,14 +431,26 @@ export default function FencePlanner() {
   };
 
   // --- Minimalne testy runtime ---
-  const runSelfTests = () => {
-    const results: string[] = [];
-    results.push(typeof svg2pdf === "function" ? "PASS: svg2pdf is a function" : `FAIL: svg2pdf typeof=${typeof svg2pdf}`);
-    const bom = buildBOM();
-    const nonNeg = bom.items.every((i) => typeof i.qty === "number" && i.qty >= 0);
-    results.push(nonNeg ? "PASS: BOM quantities non-negative" : "FAIL: Negative qty in BOM");
-    setTestReport(results.join("\n"));
-  };
+  const runSelfTests = async () => {
+  const results: string[] = [];
+
+  // test importu svg2pdf
+  try {
+    const mod: any = await import("svg2pdf.js");
+    const fn = mod.default || mod;
+    results.push(typeof fn === "function" ? "PASS: svg2pdf is a function" : `FAIL: svg2pdf typeof=${typeof fn}`);
+  } catch (e) {
+    results.push("FAIL: svg2pdf import error");
+  }
+
+  // test BOM
+  const bom = buildBOM();
+  const nonNeg = bom.items.every((i) => typeof i.qty === "number" && i.qty >= 0);
+  results.push(nonNeg ? "PASS: BOM quantities non-negative" : "FAIL: Negative qty in BOM");
+
+  setTestReport(results.join("\n"));
+};
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -672,7 +684,9 @@ export default function FencePlanner() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Button variant="outline" size="sm" onClick={runSelfTests}>Uruchom testy</Button>
+         <Button variant="outline" size="sm" onClick={() => void runSelfTests()}>
+          Uruchom testy
+        </Button>
           {testReport && (
             <pre className="text-xs bg-muted p-2 rounded-md whitespace-pre-wrap">{testReport}</pre>
           )}
