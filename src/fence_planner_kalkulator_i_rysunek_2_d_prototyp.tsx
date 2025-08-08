@@ -534,7 +534,7 @@ export default function FencePlanner() {
               <Button onClick={downloadSVG} className="gap-2">
                 <Download className="w-4 h-4" /> SVG
               </Button>
-              <Button onClick={downloadPDF} variant="secondary" className="gap-2">
+              <Button onClick={() => void downloadPDF()} variant="secondary" className="gap-2">
                 <Download className="w-4 h-4" /> PDF
               </Button>
               <Button onClick={downloadCSV} variant="secondary" className="gap-2">
