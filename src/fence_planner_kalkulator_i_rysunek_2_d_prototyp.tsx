@@ -297,9 +297,9 @@ export default function FencePlanner() {
   const svg = svgRef.current as SVGSVGElement | null;
   if (!svg) return;
 
-  // dynamiczny import tylko w przeglądarce
+  // dynamiczny import w przeglądarce
   const mod: any = await import("svg2pdf.js");
-  const svg2pdf = mod.default || mod; // obsłuż obie formy eksportu
+  const svg2pdfFn: any = mod.default || mod; // <- inna nazwa
 
   const bbox = svg.getBBox();
   const doc = new jsPDF({
@@ -313,12 +313,12 @@ export default function FencePlanner() {
   const scale = Math.min((pageW - 20) / bbox.width, (pageH - 40) / bbox.height);
   const opts = { x: 10, y: 20, width: bbox.width * scale, height: bbox.height * scale } as any;
 
-  if (typeof svg2pdf !== "function") {
-    console.error("svg2pdf nie jest funkcją:", svg2pdf);
+  if (typeof svg2pdfFn !== "function") {
+    console.error("svg2pdf nie jest funkcją:", svg2pdfFn);
     alert("Nie udało się załadować svg2pdf. Sprawdź paczkę svg2pdf.js.");
     return;
   }
-  svg2pdf(svg, doc as any, opts);
+  svg2pdfFn(svg, doc as any, opts);
 
   const bom = buildBOM();
   const rows = bom.items.map((i) => [i.name, i.qty, i.details]);
@@ -431,21 +431,16 @@ export default function FencePlanner() {
   // --- Minimalne testy runtime ---
   const runSelfTests = async () => {
   const results: string[] = [];
-
-  // test importu svg2pdf
   try {
     const mod: any = await import("svg2pdf.js");
-    const fn = mod.default || mod;
-    results.push(typeof fn === "function" ? "PASS: svg2pdf is a function" : `FAIL: svg2pdf typeof=${typeof fn}`);
-  } catch (e) {
+    const svg2pdfFn = mod.default || mod;
+    results.push(typeof svg2pdfFn === "function" ? "PASS: svg2pdf is a function" : `FAIL: svg2pdf typeof=${typeof svg2pdfFn}`);
+  } catch {
     results.push("FAIL: svg2pdf import error");
   }
-
-  // test BOM
   const bom = buildBOM();
   const nonNeg = bom.items.every((i) => typeof i.qty === "number" && i.qty >= 0);
   results.push(nonNeg ? "PASS: BOM quantities non-negative" : "FAIL: Negative qty in BOM");
-
   setTestReport(results.join("\n"));
 };
 
