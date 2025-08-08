@@ -295,40 +295,45 @@ export default function FencePlanner() {
     return { items: it };
   };
 
-  const downloadPDF = () => {
-    const svg = svgRef.current as any;
-    if (!svg) return;
-    const bbox = svg.getBBox();
-    const doc = new jsPDF({
-      orientation: bbox.width > bbox.height ? "l" : "p",
-      unit: "mm",
-      format: "a4",
-    });
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
+  const downloadPDF = async () => {
+  const svg = svgRef.current as SVGSVGElement | null;
+  if (!svg) return;
 
-    const scale = Math.min((pageW - 20) / bbox.width, (pageH - 40) / bbox.height);
-    const opts = { x: 10, y: 20, width: bbox.width * scale, height: bbox.height * scale } as any;
+  // dynamiczny import tylko w przeglądarce
+  const mod: any = await import("svg2pdf.js");
+  const svg2pdf = mod.default || mod; // obsłuż obie formy eksportu
 
-    if (typeof svg2pdf !== "function") {
-      console.error("svg2pdf nie jest funkcją:", svg2pdf);
-      alert("Nie udało się załadować svg2pdf. Odśwież stronę lub sprawdź paczkę svg2pdf.js.");
-      return;
-    }
-    svg2pdf(svg, doc as any, opts);
+  const bbox = svg.getBBox();
+  const doc = new jsPDF({
+    orientation: bbox.width > bbox.height ? "l" : "p",
+    unit: "mm",
+    format: "a4",
+  });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
 
-    const bom = buildBOM();
-    const rows = bom.items.map((i) => [i.name, i.qty, i.details]);
-    doc.text("Zestawienie materiałów", 10, pageH - 70);
-    (doc as any).autoTable({
-      startY: pageH - 65,
-      head: [["Element", "Ilość", "Szczegóły"]],
-      body: rows,
-      styles: { fontSize: 9 },
-    });
+  const scale = Math.min((pageW - 20) / bbox.width, (pageH - 40) / bbox.height);
+  const opts = { x: 10, y: 20, width: bbox.width * scale, height: bbox.height * scale } as any;
 
-    doc.save("ogrodzenie.pdf");
-  };
+  if (typeof svg2pdf !== "function") {
+    console.error("svg2pdf nie jest funkcją:", svg2pdf);
+    alert("Nie udało się załadować svg2pdf. Sprawdź paczkę svg2pdf.js.");
+    return;
+  }
+  svg2pdf(svg, doc as any, opts);
+
+  const bom = buildBOM();
+  const rows = bom.items.map((i) => [i.name, i.qty, i.details]);
+  doc.text("Zestawienie materiałów", 10, pageH - 70);
+  (doc as any).autoTable({
+    startY: pageH - 65,
+    head: [["Element", "Ilość", "Szczegóły"]],
+    body: rows,
+    styles: { fontSize: 9 },
+  });
+
+  doc.save("ogrodzenie.pdf");
+};
 
   const downloadCSV = () => {
     const bom = buildBOM();
