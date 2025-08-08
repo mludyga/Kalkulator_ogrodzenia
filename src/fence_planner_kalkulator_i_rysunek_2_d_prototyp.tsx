@@ -11,6 +11,7 @@ import { Download, Ruler, Layout, Calculator, RefreshCw, Map, Bug } from "lucide
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 // ESM build z domyślnym eksportem funkcji
+import svg2pdf from "svg2pdf.js";
 
 // --- Helpers ---
 const mmPerUnit: Record<string, number> = { mm: 1, cm: 10, m: 1000 };
